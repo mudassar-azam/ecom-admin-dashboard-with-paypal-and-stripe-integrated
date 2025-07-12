@@ -193,4 +193,68 @@ class PaymentController extends Controller
     {
         return redirect()->route('front.allProducts')->with('error', 'Stripe payment was canceled.');
     }
+
+    public function apiCheckout(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string',
+            'email' => 'required|email',
+            'phone' => 'required|string',
+            'shipping_address' => 'required|string',
+            'city' => 'required|string',
+            'state' => 'required|string',
+            'zipcode' => 'required|string',
+            'country' => 'required|string',
+            'total' => 'required|numeric|min:0',
+            'products' => 'required|array',
+            'payment_method' => 'required|in:paypal,stripe',
+        ]);
+        $shippingSetting = \App\Models\ShippingSetting::first();
+        $shippingCost = $shippingSetting ? $shippingSetting->shipping_cost : 0;
+        $order = \App\Models\Order::create([
+            'user_id' => $request->user() ? $request->user()->id : null,
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'phone' => $validated['phone'],
+            'shipping_address' => $validated['shipping_address'],
+            'city' => $validated['city'],
+            'state' => $validated['state'],
+            'zipcode' => $validated['zipcode'],
+            'country' => $validated['country'],
+            'total' => $validated['total'],
+            'payment_method' => $validated['payment_method'],
+            'status' => 0,
+        ]);
+        foreach ($validated['products'] as $productId => $qty) {
+            \App\Models\OrderItem::create([
+                'order_id' => $order->id,
+                'product_id' => $productId,
+                'quantity' => $qty,
+            ]);
+        }
+        if ($validated['payment_method'] === 'paypal') {
+            $paypalUrl = route('api.paypal', $order->id);
+            return response()->json(['status' => 'success', 'redirect_url' => $paypalUrl, 'order_id' => $order->id]);
+        } else if ($validated['payment_method'] === 'stripe') {
+            $stripeUrl = route('api.stripe', $order->id);
+            return response()->json(['status' => 'success', 'redirect_url' => $stripeUrl, 'order_id' => $order->id]);
+        } else {
+            return response()->json(['status' => 'error', 'message' => 'Invalid payment method.'], 400);
+        }
+    }
+
+    public function apiPaypal($orderId)
+    {
+        return $this->paypal($orderId);
+    }
+
+    public function apiStripe($orderId)
+    {
+        return $this->stripe($orderId);
+    }
+
+    public function apiStripeSuccess(Request $request, $orderId)
+    {
+        return $this->stripeSuccess($request, $orderId);
+    }
 }

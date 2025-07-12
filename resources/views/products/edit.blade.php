@@ -112,7 +112,7 @@
                                 <div class="col-md-6 mb-3">
                                     <label>Main Image</label><br>
                                     @if ($product->main_image)
-                                        <img src="{{ asset($product->main_image) }}" height="80" class="mb-2"><br>
+                                        <img src="{{ asset($product->main_image) }}" height="80" alt="product main image" class="mb-2"><br>
                                     @endif
                                     <input type="file" name="main_image" class="form-control">
                                 </div>
@@ -123,7 +123,7 @@
                                     <label>Gallery Images</label><br>
                                     @if ($product->gallery_images)
                                         @foreach (json_decode($product->gallery_images, true) as $image)
-                                            <img src="{{ asset($image) }}" width="60" class="me-1 mb-1">
+                                            <img src="{{ asset($image) }}" width="60" class="me-1 mb-1" alt="gallery image">
                                         @endforeach
                                         <br>
                                     @endif
@@ -255,10 +255,14 @@
             $('.select2').select2();
         });
     </script>
-    <script src="https://cdn.ckeditor.com/4.21.0/standard/ckeditor.js"></script>
+    <script src="/assets/js/plugin/summernote/summernote-lite.min.js"></script>
     <script>
-        CKEDITOR.replaceAll('rich-text');
-    </script>
+$(function() {
+  $('.rich-text').summernote({
+    height: 200
+  });
+});
+</script>
 @endsection
 
 @endsection

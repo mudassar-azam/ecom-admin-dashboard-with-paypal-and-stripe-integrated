@@ -448,10 +448,14 @@
 
         });
     </script>
-    <script src="https://cdn.ckeditor.com/4.21.0/standard/ckeditor.js"></script>
+    <script src="/assets/js/plugin/summernote/summernote-lite.min.js"></script>
     <script>
-        CKEDITOR.replaceAll('rich-text');
-    </script>
+$(function() {
+  $('.rich-text').summernote({
+    height: 200
+  });
+});
+</script>
 @endsection
 
 @endsection

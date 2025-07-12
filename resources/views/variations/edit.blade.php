@@ -9,7 +9,7 @@
                         <h4 class="mb-0">Edit Variation</h4>
                     </div>
                     <div class="card-body">
-                        <form action="{{ route('variations.update', $attribute->id) }}" method="POST">
+                        <form action="{{ route('variations.update', $attribute->id) }}" method="POST" enctype="multipart/form-data">
                             @csrf
                             @method('PUT')
 
@@ -27,6 +27,11 @@
                                             <input type="hidden" name="value_ids[]" value="{{ $value->id }}">
                                             <input type="text" class="form-control" name="values[]"
                                                 value="{{ $value->name }}">
+                                            <input type="file" class="form-control" name="images[]">
+                                            @if ($value->image)
+                                                <img src="{{ asset($value->image) }}" width="40" height="40" style="object-fit:cover;">
+                                            @endif
+                                            <input type="color" class="form-control form-control-color" name="colors[]" value="{{ $value->color }}">
                                         </div>
                                     @endforeach
                                 </div>
@@ -51,9 +56,22 @@
                                 input.type = 'text';
                                 input.name = 'values[]';
                                 input.className = 'form-control';
+                                input.placeholder = 'Value Name';
 
-                                container.appendChild(wrapper);
+                                const image = document.createElement('input');
+                                image.type = 'file';
+                                image.name = 'images[]';
+                                image.className = 'form-control';
+
+                                const color = document.createElement('input');
+                                color.type = 'color';
+                                color.name = 'colors[]';
+                                color.className = 'form-control form-control-color';
+
                                 wrapper.appendChild(input);
+                                wrapper.appendChild(image);
+                                wrapper.appendChild(color);
+                                container.appendChild(wrapper);
                             }
                         </script>
 

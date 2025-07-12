@@ -41,12 +41,29 @@ class VariationController extends Controller
         $attribute = Attribute::create([
             'name' => $request->input('name')
         ]);
-
-        AttributeValue::create([
-            'attribute_id' => $attribute->id,
-            'name' => $request->input('value')
-        ]);
-
+        $values = $request->input('values', []);
+        $images = $request->file('images', []);
+        $colors = $request->input('colors', []);
+        foreach ($values as $index => $valueName) {
+            $imagePath = null;
+            if (isset($images[$index]) && $images[$index]) {
+                $image = $images[$index];
+                $destinationPath = public_path('assets/attribute_values');
+                $originalName = $image->getClientOriginalName();
+                $storedName = time() . '_' . uniqid() . '_' . $originalName;
+                $image->move($destinationPath, $storedName);
+                $imagePath = 'assets/attribute_values/' . $storedName;
+            }
+            $color = $colors[$index] ?? null;
+            if (trim($valueName) !== '') {
+                AttributeValue::create([
+                    'attribute_id' => $attribute->id,
+                    'name' => $valueName,
+                    'image' => $imagePath,
+                    'color' => $color,
+                ]);
+            }
+        }
         return redirect()->route('variations.index')->with('success', 'Attribute and value created successfully.');
     }
 
@@ -63,27 +80,40 @@ class VariationController extends Controller
             'name' => 'required|string|max:255',
             'values' => 'required|array',
         ]);
-
         $attribute = Attribute::findOrFail($id);
-
         $attribute->update([
             'name' => $request->input('name'),
         ]);
-
         $values = $request->input('values');
         $valueIds = $request->input('value_ids', []);
-
+        $images = $request->file('images', []);
+        $colors = $request->input('colors', []);
         foreach ($values as $index => $valueName) {
             $valueId = $valueIds[$index] ?? null;
-
+            $imagePath = null;
+            if (isset($images[$index]) && $images[$index]) {
+                $image = $images[$index];
+                $destinationPath = public_path('assets/attribute_values');
+                $originalName = $image->getClientOriginalName();
+                $storedName = time() . '_' . uniqid() . '_' . $originalName;
+                $image->move($destinationPath, $storedName);
+                $imagePath = 'assets/attribute_values/' . $storedName;
+            }
+            $color = $colors[$index] ?? null;
             if ($valueId) {
                 $existing = AttributeValue::find($valueId);
-
                 if ($existing) {
                     if (trim($valueName) === '') {
                         $existing->delete(); 
                     } else {
-                        $existing->update(['name' => $valueName]);
+                        $updateData = ['name' => $valueName];
+                        if ($imagePath) {
+                            $updateData['image'] = $imagePath;
+                        }
+                        if ($color) {
+                            $updateData['color'] = $color;
+                        }
+                        $existing->update($updateData);
                     }
                 }
             } else {
@@ -91,11 +121,12 @@ class VariationController extends Controller
                     AttributeValue::create([
                         'attribute_id' => $attribute->id,
                         'name' => $valueName,
+                        'image' => $imagePath,
+                        'color' => $color,
                     ]);
                 }
             }
         }
-
         return redirect()->route('variations.index')->with('success', 'Attribute and values updated successfully.');
     }
 

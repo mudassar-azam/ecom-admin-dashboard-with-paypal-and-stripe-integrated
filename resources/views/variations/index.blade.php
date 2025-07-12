@@ -15,6 +15,8 @@
                             <th>#</th>
                             <th>Attribute Name</th>
                             <th>Attribute Value</th>
+                            <th>Image</th>
+                            <th>Color</th>
                             <th>Created At</th>
                             <th>Actions</th>
                         </tr>
@@ -26,6 +28,24 @@
                                 <td>{{ $attribute->name }}</td>
                                 <td>
                                     {{ $attribute->values->pluck('name')->join(', ') }}
+                                </td>
+                                <td>
+                                    @foreach ($attribute->values as $value)
+                                        @if ($value->image)
+                                            <img src="{{ asset($value->image) }}" width="40" height="40" style="object-fit:cover;" class="me-1 mb-1">
+                                        @else
+                                            N/A
+                                        @endif
+                                    @endforeach
+                                </td>
+                                <td>
+                                    @foreach ($attribute->values as $value)
+                                        @if ($value->color)
+                                            <span style="display:inline-block;width:24px;height:24px;background:{{ $value->color }};border-radius:50%;border:1px solid #ccc;vertical-align:middle;margin-right:4px;"></span>
+                                        @else
+                                            N/A
+                                        @endif
+                                    @endforeach
                                 </td>
                                 <td>
                                     {{ $attribute->values->first()?->created_at ? $attribute->values->first()->created_at->format('d M Y h:i A') : 'N/A' }}

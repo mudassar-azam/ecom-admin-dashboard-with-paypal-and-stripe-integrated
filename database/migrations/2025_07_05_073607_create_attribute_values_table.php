@@ -12,6 +12,8 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('attribute_id')->nullable();
             $table->string('name')->nullable();
+            $table->string('image')->nullable();
+            $table->string('color')->nullable();
             $table->timestamps();
             
             $table->foreign('attribute_id')->references('id')->on('attributes')->onDelete('cascade');

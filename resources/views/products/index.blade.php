@@ -51,7 +51,7 @@
                             <td>{{ ucfirst($product->status) }}</td>
                             <td>
                                 @if ($product->main_image)
-                                    <img src="{{ asset($product->main_image) }}" width="60">
+                                    <img src="{{ asset($product->main_image) }}" width="60" alt="main image">
                                 @else
                                     N/A
                                 @endif
@@ -59,7 +59,7 @@
                             <td>
                                 @if ($product->gallery_images)
                                     @foreach (json_decode($product->gallery_images, true) as $image)
-                                        <img src="{{ asset($image) }}" width="60" class="me-1 mb-1">
+                                        <img src="{{ asset($image) }}" width="60" class="me-1 mb-1" alt="gallery image">
                                     @endforeach
                                 @else
                                     N/A

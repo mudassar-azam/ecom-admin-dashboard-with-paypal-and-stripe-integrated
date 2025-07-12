@@ -212,36 +212,7 @@ class ProductController extends Controller
             ]
         ));
 
-        if ($request->has('variations')) {
-            $product->variations()->delete();
-            
-            foreach ($request->variations as $variation) {
-                $variationGallery = [];
-
-                if (isset($variation['gallery_images']) && is_array($variation['gallery_images'])) {
-                    foreach ($variation['gallery_images'] as $image) {
-                        if ($image && $image->isValid()) {
-                            $original = $image->getClientOriginalName();
-                            $storedName = time() . '_' . uniqid() . '_' . $original;
-                            $image->move(public_path('assets/products'), $storedName);
-                            $variationGallery[] = 'assets/products/' . $storedName;
-                        }
-                    }
-                }
-
-                Variation::create([
-                    'product_id' => $product->id,
-                    'attribute_id' => $variation['attribute_id'] ?? null,
-                    'attribute_value_id' => $variation['value_id'] ?? null,
-                    'name' => $variation['name'] ?? null,
-                    'sku' => $variation['sku'] ?? null,
-                    'description' => $variation['description'] ?? null,
-                    'sale_price' => $variation['sale_price'] ?? null,
-                    'stock_status' => $variation['stock_status'] ?? 'in_stock',
-                    'gallery_images' => !empty($variationGallery) ? json_encode($variationGallery) : null,
-                ]);
-            }
-        }
+        $product->variations()->sync($request->variations);
 
         return redirect()->route('products.index')->with('success', 'Product updated successfully');
     }
