@@ -191,7 +191,14 @@ class ApiController extends Controller
         ]);
         $query = Product::with(['brand', 'category', 'variations.attribute', 'variations.value']);
         if ($request->has('name') && $request->name) {
-            $query->where('name', 'LIKE', '%' . $request->name . '%');
+            $searchTerm = $request->name;
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('name', 'LIKE', '%' . $searchTerm . '%')
+                  ->orWhere('meta_keywords', 'LIKE', '%' . $searchTerm . '%')
+                  ->orWhere('tags', 'LIKE', '%' . $searchTerm . '%')
+                  ->orWhere('description', 'LIKE', '%' . $searchTerm . '%')
+                  ->orWhere('short_description', 'LIKE', '%' . $searchTerm . '%');
+            });
         }
         if ($request->has('brand') && $request->brand) {
             $query->whereHas('brand', function ($brandQuery) use ($request) {
